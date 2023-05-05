@@ -20,7 +20,7 @@ db.on("open", () => {
 app.use(express.json());
 
 const postRouter = require("./routers/post");
-app.use("post", postRouter);
+app.use("/post", postRouter);
 //listen
 app.listen(port, () => {
   console.log("server run on port", port);
