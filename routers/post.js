@@ -1,6 +1,24 @@
 const express = require("express");
 const router = express.Router();
 const Post = require("../models/post");
+console.log("run post route");
+///////////////////////
+//middlware function
+const getPost = async (req, res, next) => {
+  let post;
+  try {
+    post = await Post.findById(req.params.id);
+
+    if (post == null)
+      res.status(404).json({ isSucsess: true, message: "not found" });
+    // else res.post = post;
+  } catch (error) {
+    return res.status(500).json({ message: error.message, isSucsess: false }); //bad data
+  }
+  res.post = post;
+  next();
+};
+///////////////////////
 
 router.get("/", async (req, res) => {
   try {
@@ -12,9 +30,9 @@ router.get("/", async (req, res) => {
   console.log("post get list");
 });
 
-router.get("/:id", (req, res) => {
+router.get("/:id", getPost, (req, res) => {
   console.log("post get id");
-  res.send("hello get one");
+  res.send(res.post);
 });
 //add one
 router.post("/", async (req, res) => {
@@ -31,15 +49,30 @@ router.post("/", async (req, res) => {
   }
   console.log("post post id");
 });
+
 //update
-router.patch("/:id", (req, res) => {
+router.patch("/:id", getPost, (req, res) => {
+  try {
+  } catch (error) {}
+
   console.log("updare post id");
   res.send("hello patch");
 });
 
 //delete
-router.delete("/:id", (req, res) => {
+router.delete("/:id", async (req, res) => {
+  let post;
+  try {
+    const findPost = await Post.deleteOne({ _id: req.params.id });
+    if (findPost) {
+      res.json({ isSucsess: true, data: findPost });
+    } else {
+      res.status(404).json({ isSucsess: true, message: "not found" });
+    }
+  } catch (error) {
+    return res.status(500).json({ message: error.message, isSucsess: false }); //bad data
+  }
+
   console.log("delete post id");
-  res.send("hello delete");
 });
 module.exports = router;
